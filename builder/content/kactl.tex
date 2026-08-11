@@ -1,0 +1,53 @@
+\documentclass[8pt, a4paper, notitlepage]{extreport}
+\usepackage{kactlpkg}
+\usepackage[T1]{fontenc}
+%\usepackage[scaled=0.74]{beramono}
+\usepackage[scaled=1]{beramono}
+\usepackage{verbatim}
+\usepackage{wrapfig}
+\usepackage[export]{adjustbox}
+\kactlcontentdir{content}
+
+\university{Ivan Franko National University of Lviv, LNU Turtles}{Ivan Franko National University of Lviv}{lnu}
+\team{Turtles}{Oleksandr Zhenchenko, Volodymyr Dudchak, Zakhar Chaikivskyi}
+\contest{The 2026 ICPC Southeastern Europe Regional Contest}{December 47, 2026}
+%\contest{\ }{}
+% \enablecolors
+
+\begin{document}
+	\maketeampage
+	% Small KACTL header on the first page:
+	 %\maketitle{``With Link/Cut Tree'' Edition}{\today}
+	
+	\lstset{
+    		basicstyle=\ttfamily\small, % Use Bitstream Vera Sans Mono for listings
+    		breaklines=true,
+	}
+
+	\begin{multicols*}{3}
+	\thispagestyle{fancy}
+	% Table of contents, without subsections:
+	%\setcounter{tocdepth}{0}
+	%\tableofcontents
+	
+	\kactlchapter{contest}	
+	\end{multicols*}
+	
+	
+	\begin{multicols*}{3}
+	\thispagestyle{fancy}
+	
+	\kactlchapter{data-structures}
+	\kactlchapter{graphs}
+	\kactlchapter{strings}
+	\kactlchapter{geometry}
+	\kactlchapter{mathematics}
+	\kactlchapter{various}
+	\end{multicols*}
+
+	\begin{multicols*}{3}
+	%\kactlchapter{appendix}
+	\end{multicols*}
+\end{document}
+
+

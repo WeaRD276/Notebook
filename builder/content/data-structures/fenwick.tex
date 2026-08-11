@@ -1,0 +1,35 @@
+\section*{Minimum on a Segment}
+
+Maintain two Fenwick trees with $n = 2^k$ — one for the original array and the other for the reversed array. Use:
+\texttt{n = \_\_bit\_ceil(n)}.
+
+When querying for the minimum on the segment, only consider segments $[(i \& (i + 1)), i]$ that are completely inside $[l, r]$.
+
+\section*{Add on a Segment}
+
+Maintain two Fenwick trees: \texttt{tMult} and \texttt{tAdd}.
+
+To add $x$ on the segment $[l, r]$, perform:
+\[
+\begin{aligned}
+&\texttt{tMult.upd}(l, x), \\
+&\texttt{tMult.upd}(r + 1, -x), \\
+&\texttt{tAdd.upd}(l, -x \cdot l), \\
+&\texttt{tAdd.upd}(r + 1, x \cdot (r + 1)).
+\end{aligned}
+\]
+
+Then, the sum on $[l, r]$ is:
+\[
+\begin{aligned}
+\text{sum}(l, r) &=
+ (r + 1)\,\texttt{tMult.getSum}(r + 1)
+ + \texttt{tAdd.getSum}(r + 1) \\
+&\quad - \Bigl(
+ l \cdot \texttt{tMult.getSum}(l)
+ + \texttt{tAdd.getSum}(l)
+ \Bigr).
+\end{aligned}
+\]
+
+
