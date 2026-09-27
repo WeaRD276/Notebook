@@ -14,9 +14,9 @@ using namespace std;
 #define RFOR(i, a, b) for(int i = (a) - 1; i >= (b); --i)
 #define MP make_pair
 
+typedef string str;
 typedef long long ll;
 typedef double db;
-typedef long double LD;
 typedef pair<int, int> pii;
 typedef pair<db, db> pdd;
 typedef pair<ll, ll> pll;
