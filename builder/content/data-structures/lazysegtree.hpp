@@ -1,109 +1,131 @@
 /**
- * Description: Supporte everything related to seg trees
+ * Description: Lazy segment tree. \texttt{Node()} and \texttt{Tag()} must be identities.
+ * \texttt{act(v, tg)} returns node \texttt{v} with \texttt{tg} applied,
+ * \texttt{compose(a, b)} returns the tag "first \texttt{a}, then \texttt{b}".
+ * Time: O(\log n)
  */
-template<class S, S (*op)(S, S), S (*e)(),
-         class F, S (*mapping)(F, S),
-         F (*composition)(F, F), F (*id)()>
+struct Node
+{
+
+};
+
+struct Tag
+{
+
+};
+
+Node op(const Node& l, const Node& r)
+{
+
+}
+
+Node act(const Node& v, const Tag& tg)
+{
+
+}
+
+Tag compose(const Tag& a, const Tag& b)
+{
+
+}
+
 struct LazySegTree
 {
-    int n, size, log;
-    vector<S> t;
-    vector<F> lz;
+	int n, lg;
+	vector<Node> t;
+	vector<Tag> lz;
 
-    LazySegTree(int _n = 0) : LazySegTree(vector<S>(_n, e())) {}
-    LazySegTree(const vector<S>& v)
-    {
-        n = sz(v);
-        size = 1;
-        while (size < n) 
-			size <<= 1;
-        log = __builtin_ctz(size);
-        t.assign(2 * size, e());
-        lz.assign(size, id());
-        FOR(i, 0, n) t[size + i] = v[i];
-        RFOR(i, size, 1) update(i);
-    }
+	LazySegTree(unsigned int _n)
+	{
+		n = bit_ceil(_n);
+		lg = __lg(n);
+		t.assign(2 * n, Node());
+		lz.assign(n, Tag());
+	}
+	LazySegTree(const vector<Node>& ar): LazySegTree(sz(ar))
+	{
+		FOR (i, 0, sz(ar))
+			t[i + n] = ar[i];
+		RFOR (i, n, 1)
+			update(i);
+	}
+	void update(int v)
+	{
+		t[v] = act(op(t[v << 1], t[(v << 1) | 1]), lz[v]);
+	}
+	void apply(int v, const Tag& tg)
+	{
+		t[v] = act(t[v], tg);
+		if (v < n)
+			lz[v] = compose(lz[v], tg);
+	}
+	void push(int v)
+	{
+		apply(v << 1, lz[v]);
+		apply((v << 1) | 1, lz[v]);
+		lz[v] = Tag();
+	}
 
-    void update(int k) { t[k] = op(t[k << 1], t[k << 1 | 1]); }
+	void set(int p, Node val)
+	{
+		p += n;
+		RFOR (i, lg + 1, 1)
+			push(p >> i);
+		t[p] = val;
+		FOR (i, 1, lg + 1)
+			update(p >> i);
+	}
+	Node get(int p)
+	{
+		p += n;
+		RFOR (i, lg + 1, 1)
+			push(p >> i);
+		return t[p];
+	}
+	// [l, r)
+	void upd(int l, int r, const Tag& tg)
+	{
+		if (l == r)
+			return;
+		l += n;
+		r += n;
+		RFOR (i, lg + 1, 1)
+		{
+			push(l >> i);
+			push((r - 1) >> i);
+		}
+		for (int a = l, b = r; a < b; a >>= 1, b >>= 1)
+		{
+			if (a & 1) apply(a++, tg);
+			if (b & 1) apply(--b, tg);
+		}
+		FOR (i, 1, lg + 1)
+		{
+			update(l >> i);
+			update((r - 1) >> i);
+		}
+	}
+	// [l, r)
+	Node query(int l, int r)
+	{
+		if (l == r)
+			return Node();
+		l += n;
+		r += n;
+		RFOR (i, lg + 1, 1)
+		{
+			push(l >> i);
+			push((r - 1) >> i);
+		}
 
-    void all_apply(int k, F f)
-    {
-        t[k] = mapping(f, t[k]);
-        if (k < size) lz[k] = composition(f, lz[k]);
-    }
-
-    void push(int k)
-    {
-        all_apply(k << 1, lz[k]);
-        all_apply(k << 1 | 1, lz[k]);
-        lz[k] = id();
-    }
-
-    void set(int p, S x)
-    {
-        p += size;
-        RFOR(i, log + 1, 1) push(p >> i);
-        t[p] = x;
-        FOR (i, 1, log + 1) update(p >> i);
-    }
-
-    S get(int p)
-    {
-        p += size;
-        RFOR(i, log + 1, 1) push(p >> i);
-        return t[p];
-    }
-
-    // [l, r)
-    S prod(int l, int r)
-    {
-        if (l == r) return e();
-        l += size; r += size;
-        RFOR(i, log + 1, 1)
-        {
-            if (((l >> i) << i) != l) push(l >> i);
-            if (((r >> i) << i) != r) push((r - 1) >> i);
-        }
-        S sml = e(), smr = e();
-        while (l < r)
-        {
-            if (l & 1) sml = op(sml, t[l++]);
-            if (r & 1) smr = op(t[--r], smr);
-            l >>= 1; r >>= 1;
-        }
-        return op(sml, smr);
-    }
-
-    S all_prod() { return t[1]; }
-
-    void apply(int p, F f)
-    {
-        p += size;
-        RFOR(i, log + 1, 1) push(p >> i);
-        t[p] = mapping(f, t[p]);
-        FOR(i, 1, log + 1) update(p >> i);
-    }
-
-    void apply(int l, int r, F f)
-    {
-        if (l == r) return;
-        l += size; r += size;
-        RFOR(i, log + 1, 1)
-        {
-            if (((l >> i) << i) != l) push(l >> i);
-            if (((r >> i) << i) != r) push((r - 1) >> i);
-        }
-        int l2 = l, r2 = r;
-        while (l < r)
-        {
-            if (l & 1) all_apply(l++, f);
-            if (r & 1) all_apply(--r, f);
-            l >>= 1; r >>= 1;
-        }
-        FOR (i, 1, log + 1)
-        {
-            if (((l2 >> i) << i) != l2) update(l2 >> i);
-            if (((r2 >> i) << i) != r2) update((r2 - 1) >> i);
-        }
-    }
+		Node resL, resR;
+		while (l < r)
+		{
+			if (l & 1) resL = op(resL, t[l++]);
+			if (r & 1) resR = op(t[--r], resR);
+			l >>= 1;
+			r >>= 1;
+		}
+		return op(resL, resR);
+	}
 };
